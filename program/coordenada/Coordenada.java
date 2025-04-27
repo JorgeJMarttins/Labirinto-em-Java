@@ -52,7 +52,8 @@ public class Coordenada implements Cloneable
         ret *= 7 + ((Integer)(this.linha  )).hashCode();
         ret *= 7 + ((Integer)(this.coluna )).hashCode();
 
-        if (ret<0) return ret=-ret;
+        if (ret<0) 
+            return ret=-ret;
 
         return ret;
     }

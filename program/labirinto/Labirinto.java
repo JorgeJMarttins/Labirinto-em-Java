@@ -94,4 +94,65 @@ public class Labirinto
 
         return false;
     }
+
+    @Override
+    public String toString() 
+    {
+        StringBuilder st = new StringBuilder();
+
+        for (int i=0; i<linha; i++) 
+        {
+            for (int j=0; j<coluna; j++) 
+                st.append(labirinto[i][j]);  
+
+            st.append('\n');
+        }
+
+        return st.toString();  
+    }
+
+
+    @Override
+    public int hashCode() 
+    {
+        int ret=1;
+
+        ret *= 7 + ((Integer)(this.linha  )).hashCode();
+        ret *= 7 + ((Integer)(this.coluna )).hashCode();
+    
+        for (int i=0; i<linha; i++) 
+        {
+            for (int j=0; j<coluna; j++) 
+                ret *= 7 + ((Character)(this.labirinto[i][j])).hashCode();  
+        }
+        
+        if (ret<0) 
+            return ret=-ret;
+
+        return ret;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this==obj) return true;
+        if (obj==null) return false;
+        if (this.getClass()!=obj.getClass()) return false;
+
+        Labirinto lab = (Labirinto) obj;
+        
+        if (this.linha!=lab.linha) return false;
+        if (this.coluna!=lab.coluna) return false;
+
+        for (int i=0; i<linha; i++) 
+        {
+            for (int j=0; j<coluna; j++) 
+            {
+                if (this.labirinto[i][j] != lab.labirinto[i][j])
+                    return false;
+            }
+        }
+
+        return true;
+    }
 }
