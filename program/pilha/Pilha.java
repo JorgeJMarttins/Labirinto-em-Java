@@ -139,7 +139,7 @@ public class Pilha <X> implements Cloneable
     @Override
     public int hashCode ()
     {
-        int ret=666;
+        int ret=1;
 
         ret = ret*7 + ((Integer)(this.ultimo        )).hashCode();
       //ret = ret*7/*primo*/ + ((Integer)(this.tamanhoInicial)).hashCode();
