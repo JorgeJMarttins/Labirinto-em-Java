@@ -51,4 +51,52 @@ public class Labirinto
             System.out.println();
         }
     }
+
+@Override
+public String toString() {
+    StringBuilder st = new StringBuilder();
+    for (int i = 0; i < linhas; i++) {
+        for (int j = 0; j < colunas; j++) {
+            st.append(labirinto[i][j]);  
+        }
+        st.append('\n');
+    }
+    return st.toString();  
+}
+
+
+@Override
+public int hashCode() {
+    int ret = 1;
+    ret = 31 * ret + linhas;
+    ret = 31 * ret + colunas;
+   
+    for (int i = 0; i < linhas; i++) {
+        for (int j = 0; j < colunas; j++) {
+            ret = 31 * ret + labirinto[i][j];  
+        }
+    }
+    
+    return ret < 0 ? -ret : ret; 
+}
+
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this==obj) return true;
+        if (obj==null) return false;
+        if (this.getClass()!=obj.getClass()) return false;
+
+        Labirinto lab = (Labirinto) obj;
+        
+        if (this.linhas != lab.linhas || this.colunas != lab.colunas) return false;
+        for (int i = 0; i < linhas; i++) {
+            for (int j = 0; j < colunas; j++) {
+                 if (this.labirinto[i][j] != outro.labirinto[i][j])
+                return false;
+        }
+    }
+    return true;
+}
 }
