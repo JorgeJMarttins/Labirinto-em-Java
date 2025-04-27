@@ -9,7 +9,7 @@ public class Coordenada implements Cloneable
 
     public Coordenada(int linha, int coluna) throws Exception
     {
-        if (linha<1 || coluna<1)
+        if (linha<0 || coluna<0)
             throw new Exception("Erro! Digite números positivos");
 
         this.linha=linha;

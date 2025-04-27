@@ -1,7 +1,8 @@
 package program;
 
-import program.pilha.*;
-import program.coordenada.*;
+import program.pilha.Pilha;
+import program.fila.Fila;
+import program.coordenada.Coordenada;
 import program.labirinto.Labirinto;
 
 public class Main 
@@ -13,9 +14,10 @@ public class Main
             Labirinto lab = new Labirinto("teste1.txt");
 
             lab.imprimirLabirinto();
+            System.out.println(lab.encontrarEntrada());
         } 
         catch (Exception e) {
-            System.err.println("Erro!" + e.getMessage());
+            System.err.println("Erro! " + e.getMessage());
         }
     }
 }
