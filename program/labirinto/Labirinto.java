@@ -14,12 +14,18 @@ public class Labirinto
     private Pilha<Coordenada> caminho;
     private Pilha<Fila<Coordenada>> possibilidades;
     private Coordenada atual;
+    private Fila<Coordenada> fila;
 
-    public Labirinto (String arq) throws Exception
+    public Labirinto (String arq) 
+    {
+        leitura(arq);
+    }
+
+    public Labirinto() throws Exception
     {
         caminho = new Pilha<Coordenada> (45);
         possibilidades = new Pilha<Fila<Coordenada>> (45); 
-        leitura(arq);
+        fila = new Fila<Coordenada> (3);
     }
 
     public void leitura (String arq)
@@ -93,6 +99,28 @@ public class Labirinto
         }
 
         return false;
+    }
+
+    public void darUmPasso() throws Exception
+    {
+        int linhaAtual = atual.getLinha();
+        int colunaAtual = atual.getColuna();
+
+        // CIMA
+        if (linhaAtual > 0 && (labirinto[linhaAtual-1][colunaAtual] == ' ' || labirinto[linhaAtual-1][colunaAtual] == 'S'))
+            fila.guardeUmItem(new Coordenada(linhaAtual-1, colunaAtual));
+
+        // BAIXO
+        if (linhaAtual < linha-1 && (labirinto[linhaAtual+1][colunaAtual] == ' ' || labirinto[linhaAtual+1][colunaAtual] == 'S'))
+            fila.guardeUmItem(new Coordenada(linhaAtual+1, colunaAtual));
+
+        // ESQUERDA
+        if (colunaAtual > 0 && (labirinto[linhaAtual][colunaAtual-1] == ' ' || labirinto[linhaAtual][colunaAtual-1] == 'S'))
+            fila.guardeUmItem(new Coordenada(linhaAtual, colunaAtual-1));
+
+        // DIREITA
+        if (colunaAtual < coluna-1 && (labirinto[linhaAtual][colunaAtual+1] == ' ' || labirinto[linhaAtual][colunaAtual+1] == 'S'))
+            fila.guardeUmItem(new Coordenada(linhaAtual, colunaAtual+1));
     }
 
     @Override
