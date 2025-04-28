@@ -1,7 +1,4 @@
 package program.coordenada;
-
-import program.pilha.Pilha;
-
 public class Coordenada implements Cloneable
 {
     private int linha;
@@ -71,5 +68,31 @@ public class Coordenada implements Cloneable
         if (this.coluna!=cord.coluna) return false;
         
         return true;
+    }
+
+    public Coordenada(Coordenada modelo) throws Exception
+    {
+        if (modelo == null)
+            throw new Exception("Modelo ausente");
+
+        this.linha = modelo.linha;
+        this.coluna = modelo.coluna;
+    }
+
+    @Override
+    public Object clone()
+    {
+        Coordenada ret = null;
+
+        try
+        {
+            ret = new Coordenada(this);
+        }
+        catch (Exception erro)
+        {
+            // Não vai acontecer, porque estamos clonando nós mesmos
+        }
+
+        return ret;
     }
 }

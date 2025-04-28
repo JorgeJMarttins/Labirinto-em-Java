@@ -11,13 +11,21 @@ public class Main
     {
         try 
         {
-            Labirinto lab = new Labirinto("teste1.txt");
+            Labirinto lab = new Labirinto("teste2.txt");
 
+            // Mostra o labirinto original
+            System.out.println("Labirinto original:");
             lab.imprimirLabirinto();
-            System.out.println(lab.encontrarEntrada());
+
+            // Resolve o labirinto
+            lab.resolverLabirinto("teste2.txt");
+
+            // Mostra o labirinto após resolver
+            System.out.println("\nLabirinto resolvido:");
+            lab.imprimirLabirinto();
         } 
         catch (Exception e) {
-            System.err.println("Erro! " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
