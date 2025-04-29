@@ -34,64 +34,117 @@ public class Labirinto {
         try (BufferedReader br = new BufferedReader(new FileReader("testes/" + arq))) {
             linha = Integer.parseInt(br.readLine());
             coluna = Integer.parseInt(br.readLine());
+
+            if (linha < 4) {
+                throw new Exception("O labirinto é pequeno demais com menos de 4 linhas.");
+            }
+
+            if (coluna < 4) {
+                throw new Exception("O labirinto é pequeno demais com menos de 4 colunas.");
+            }
+
             labirinto = new char[linha][coluna];
-    
-            int linhasLidas = 0;
-            int entradaCount = 0;
-            int saidaCount = 0;
-            int paredesInternas = 0;
-    
+
             for (int i = 0; i < linha; i++) {
                 String linhaTexto = br.readLine();
-    
                 if (linhaTexto == null || linhaTexto.length() != coluna)
-                    throw new Exception("Erro: Linha " + (i + 1) + " não possui " + coluna + " colunas.");
-    
-                for (int j = 0; j < coluna; j++) {
-                    char c = linhaTexto.charAt(j);
-                    labirinto[i][j] = c;
-    
-                    if (c == 'E') {
-                        entradaCount++;
-                        if ((i == 0 && j == 0) || (i == 0 && j == coluna - 1) ||
-                            (i == linha - 1 && j == 0) || (i == linha - 1 && j == coluna - 1))
-                            throw new Exception("Erro: Entrada 'E' não pode estar no canto (" + i + "," + j + ").");
-                    }
-    
-                    if (c == 'S') {
-                        saidaCount++;
-                        if ((i == 0 && j == 0) || (i == 0 && j == coluna - 1) ||
-                            (i == linha - 1 && j == 0) || (i == linha - 1 && j == coluna - 1))
-                            throw new Exception("Erro: Saída 'S' não pode estar no canto (" + i + "," + j + ").");
-                    }
-    
-                    // Verifica paredes internas
-                    if (c == '#' && !(i == 0 || i == linha - 1 || j == 0 || j == coluna - 1)) {
-                        paredesInternas++;
-                    }
-                }
-    
-                linhasLidas++;
+                    throw new Exception("Linhas do labirinto incompatíveis com dimensões declaradas.");
+                for (int j = 0; j < coluna; j++)
+                    labirinto[i][j] = linhaTexto.charAt(j);
             }
-    
-            if (linhasLidas != linha)
-                throw new Exception(" Número de linhas lidas (" + linhasLidas + ") não corresponde ao esperado (" + linha + ").");
-    
-            if (entradaCount != 1)
-                throw new Exception(" Deve haver exatamente uma entrada 'E'. Encontrado: " + entradaCount);
-    
-            if (saidaCount != 1)
-                throw new Exception("Deve haver exatamente uma saída 'S'. Encontrado: " + saidaCount);
-    
-            if (br.readLine() != null)
-                throw new Exception(" Arquivo possui mais linhas do que o esperado (" + linha + ").");
-    
-            if (paredesInternas == 0)
-                throw new Exception(" Labirinto inválido! Não há paredes internas (não é um labirinto, é uma sala).");
-    
+
+            verificarIntegridadeBasica();
+            verificarEstruturaDeLabirinto();
         } catch (IOException e) {
-            throw new Exception("Erro ao ler o arquivo: " + e.getMessage());
+            System.out.println("Erro ao ler o arquivo: " + e.getMessage());
         }
+    }
+
+    private void verificarIntegridadeBasica() throws Exception {
+        int entrada = 0, saida = 0;
+
+        for (int i = 0; i < linha; i++)
+            for (int j = 0; j < coluna; j++) {
+                if (labirinto[i][j] == 'E') entrada++;
+                if (labirinto[i][j] == 'S') saida++;
+            }
+
+        if (entrada != 1 || saida != 1)
+            throw new Exception("Labirinto deve conter exatamente uma entrada 'E' e uma saída 'S'.");
+
+        // Verifica se E ou S estão em cantos sem acesso válido ao interior
+        Coordenada[] extremidades = {
+            new Coordenada(0, 0), new Coordenada(0, coluna - 1),
+            new Coordenada(linha - 1, 0), new Coordenada(linha - 1, coluna - 1)
+        };
+
+        for (Coordenada c : extremidades) {
+            char atual = labirinto[c.getLinha()][c.getColuna()];
+            if (atual == 'E' || atual == 'S')
+                throw new Exception("Entrada ou saída está em uma posição sem acesso ao interior.");
+        }
+
+        // Verificar acesso lateral (bloqueio total por paredes)
+        for (int i = 0; i < linha; i++) {
+            for (int j = 0; j < coluna; j++) {
+                if (labirinto[i][j] == 'E' || labirinto[i][j] == 'S') {
+                    boolean bloqueado = true;
+                    int[][] direcoes = {{0,1}, {1,0}, {0,-1}, {-1,0}};
+                    for (int[] d : direcoes) {
+                        int ni = i + d[0], nj = j + d[1];
+                        if (ni >= 0 && ni < linha && nj >= 0 && nj < coluna)
+                            if (labirinto[ni][nj] == ' ')
+                                bloqueado = false;
+                    }
+                    if (bloqueado)
+                        throw new Exception("Entrada ou saída sem caminho livre ao redor.");
+                }
+            }
+        }
+
+        // Verifica paredes externas (borda)
+        for (int j = 0; j < coluna; j++) {
+            if (labirinto[0][j] != '#' && labirinto[0][j] != 'E' && labirinto[0][j] != 'S')
+                throw new Exception("O labirinto deve conter paredes externas (#).");
+
+            if (labirinto[linha - 1][j] != '#' && labirinto[linha - 1][j] != 'E' && labirinto[linha - 1][j] != 'S')
+                throw new Exception("O labirinto deve conter paredes externas (#).");
+        }
+
+        for (int i = 0; i < linha; i++) {
+            if (labirinto[i][0] != '#' && labirinto[i][0] != 'E' && labirinto[i][0] != 'S')
+                throw new Exception("O labirinto deve conter paredes externas (#).");
+
+            if (labirinto[i][coluna - 1] != '#' && labirinto[i][coluna - 1] != 'E' && labirinto[i][coluna - 1] != 'S')
+                throw new Exception("O labirinto deve conter paredes externas (#).");
+        }
+    }
+
+    private void verificarEstruturaDeLabirinto() throws Exception {
+        int paredesInternas = 0;
+        int bifurcacoes = 0;
+
+        for (int i = 1; i < linha - 1; i++) {
+            for (int j = 1; j < coluna - 1; j++) {
+                if (labirinto[i][j] == '#') paredesInternas++;
+
+                if (labirinto[i][j] == ' ') {
+                    int caminhos = 0;
+                    if (labirinto[i - 1][j] == ' ') caminhos++;
+                    if (labirinto[i + 1][j] == ' ') caminhos++;
+                    if (labirinto[i][j - 1] == ' ') caminhos++;
+                    if (labirinto[i][j + 1] == ' ') caminhos++;
+                    if (caminhos >= 2) bifurcacoes++;
+                }
+            }
+        }
+
+        if (paredesInternas < 1)
+            throw new Exception("O labirinto não possui paredes internas suficientes.");
+
+        // Ajustando o critério de bifurcações para labirintos menores
+        int minimoBifurcacoes = (linha >= 4 && coluna >= 4) ? 2 : 1;  // Menos bifurcações para labirintos menores
+        if (bifurcacoes < minimoBifurcacoes)            throw new Exception("Labirinto com poucas bifurcações internas, não caracteriza um labirinto real.");
     }
 
     public void imprimirLabirinto() {
