@@ -11,14 +11,14 @@ public class Main
     {
         try 
         {
-            Labirinto lab = new Labirinto("teste2.txt");
+            Labirinto lab = new Labirinto("teste3.txt");
 
             // Mostra o labirinto original
             System.out.println("Labirinto original:");
             lab.imprimirLabirinto();
 
             // Resolve o labirinto
-            lab.resolverLabirinto("teste2.txt");
+            lab.resolverLabirinto("teste3.txt");
 
             // Mostra o labirinto após resolver
             System.out.println("\nLabirinto resolvido:");
