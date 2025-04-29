@@ -9,12 +9,12 @@ public class Main {
         {
             System.out.println();
 
-            Labirinto lab = new Labirinto("teste2.txt");
+            Labirinto lab = new Labirinto("teste6.txt");
 
             System.out.println("Labirinto original:");
             lab.imprimirLabirinto();
 
-            lab.resolverLabirinto("teste2_resolvido.txt"); // Salva em outro arquivo
+            lab.resolverLabirinto("teste6_resolvido.txt"); // Salva em outro arquivo
 
         } 
         catch (Exception e) 
