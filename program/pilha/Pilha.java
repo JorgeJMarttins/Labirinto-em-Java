@@ -36,7 +36,6 @@ public class Pilha <X> implements Cloneable
             novo[i] = this.elemento[i];
 
         this.elemento = novo;
-        // System.gc();
     }
 
     public void guardeUmItem (X x) throws Exception 
@@ -125,10 +124,7 @@ public class Pilha <X> implements Cloneable
 
         if(this.ultimo!=pil.ultimo)
             return false;
-        /*
-        if(this.tamanhoInicial!=pil.tamanhoInicial)
-            return false;
-        */
+        
         for(int i=0 ; i<this.ultimo;i++)
             if(!this.elemento[i].equals(pil.elemento[i]))
                 return false;
@@ -142,7 +138,6 @@ public class Pilha <X> implements Cloneable
         int ret=1;
 
         ret = ret*7 + ((Integer)(this.ultimo        )).hashCode();
-      //ret = ret*7/*primo*/ + ((Integer)(this.tamanhoInicial)).hashCode();
 
         for (int i=0; i<this.ultimo; i++)
             ret = ret*7 + this.elemento[i].hashCode();
@@ -163,7 +158,7 @@ public class Pilha <X> implements Cloneable
         this.clonador       = modelo.clonador;
 
         
-        this.elemento = new Object[modelo.elemento.length]; // this.elemento = new X [modelo.elemento.length];
+        this.elemento = new Object[modelo.elemento.length];
 
         for(int i=0 ; i<modelo.elemento.length ; i++)
             this.elemento[i] = modelo.elemento[i];

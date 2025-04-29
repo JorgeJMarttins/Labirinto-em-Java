@@ -128,10 +128,7 @@ public class Fila <X> implements Cloneable
 
         if(this.ultimo!=fil.ultimo)
             return false;
-        /*
-        if(this.tamanhoInicial!=fil.tamanhoInicial)
-            return false;
-        */
+
         for(int i=0 ; i<this.ultimo;i++)
             if(!this.elemento[i].equals(fil.elemento[i]))
                 return false;
@@ -145,10 +142,9 @@ public class Fila <X> implements Cloneable
         int ret=666;
 
         ret = ret*7 + ((Integer)(this.ultimo        )).hashCode();
-      //ret = ret*7/*primo*/ + ((Integer)(this.tamanhoInicial)).hashCode();
 
         for (int i=0; i<this.ultimo; i++)
-            ret = ret*7/*primo*/ + this.elemento[i].hashCode();
+            ret = ret*7 + this.elemento[i].hashCode();
 
         if (ret<0)
             ret=-ret;
@@ -165,7 +161,7 @@ public class Fila <X> implements Cloneable
         this.ultimo         = modelo.ultimo;
         this.clonador       = modelo.clonador;
 
-        this.elemento = new Object[modelo.elemento.length]; // this.elemento = new X [modelo.elemento.length];
+        this.elemento = new Object[modelo.elemento.length]; 
 
         for(int i=0 ; i<modelo.elemento.length ; i++)
             this.elemento[i] = modelo.elemento[i];
