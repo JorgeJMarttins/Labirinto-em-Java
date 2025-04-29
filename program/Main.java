@@ -3,7 +3,8 @@ package program;
 import program.labirinto.Labirinto;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) 
+    {
         try {
             Labirinto lab = new Labirinto("teste3.txt");
 
