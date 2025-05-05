@@ -71,7 +71,7 @@ public class Pilha <X> implements Cloneable
     public void removaUmItem () throws Exception 
     {
         if (this.ultimo==-1) 
-            throw new Exception ("Nada a remover");
+            throw new Exception ("Labirinto sem acesso a saida");
 
         this.elemento[this.ultimo] = null;
         this.ultimo--;
