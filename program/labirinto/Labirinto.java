@@ -355,7 +355,6 @@ public class Labirinto implements Cloneable
             inverso.guardeUmItem(c);
             this.caminho.removaUmItem();   
         }
-        
 
         // Imprime o caminho da entrada até a saída
         System.out.println("Caminho da entrada até a saída:");
@@ -375,44 +374,49 @@ public class Labirinto implements Cloneable
     @Override
     public String toString() 
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Labirinto (").append(this.linha).append("x").append(this.coluna).append("):\n");
+        String resultado = "";
 
         for (int i = 0; i < this.linha; i++) 
         {
             for (int j = 0; j < this.coluna; j++) 
-                sb.append(this.labirinto[i][j]);
-            sb.append('\n');
+                resultado += "(" + i + "," + j + ")='" + this.labirinto[i][j] + "' ";
+
+            resultado += "\n";
         }
 
-        return sb.toString();
+        return resultado;
     }
 
     @Override
     public int hashCode() 
     {
-        int ret = 17;
+        int ret = 1;
 
-        ret = 31 * ret + linha;
-        ret = 31 * ret + coluna;
+        ret = ret * 7 + this.linha;
+        ret = ret * 7 + this.coluna;
 
         if (caminho != null)
-            ret = 31 * ret + caminho.hashCode();
+            ret = ret * 7 + caminho.hashCode();
 
         if (possibilidades != null)
-            ret = 31 * ret + possibilidades.hashCode();
+            ret = ret * 7 + possibilidades.hashCode();
 
         if (fila != null)
-            ret = 31 * ret + fila.hashCode();
+            ret = ret * 7 + fila.hashCode();
 
         if (atual != null)
-            ret = 31 * ret + atual.hashCode();
+            ret = ret * 7 + atual.hashCode();
 
-        ret = 31 * ret + (encontrouSaida ? 1 : 0);
+        ret = ret * 7 + (encontrouSaida ? 1 : 0);
 
         for (int i = 0; i < linha; i++) 
+        {
             for (int j = 0; j < coluna; j++) 
-                ret = 31 * ret + labirinto[i][j]; // char já tem valor numérico
+                ret = ret * 7 + (int) labirinto[i][j]; // char vira int implicitamente
+        }
+
+        if (ret < 0)
+            ret = -ret;
 
         return ret;
     }
@@ -423,29 +427,32 @@ public class Labirinto implements Cloneable
         if (this == obj)
             return true;
 
-        if (obj == null || getClass() != obj.getClass())
+        if(obj==null)
+            return false;
+
+        if(this.getClass()!=obj.getClass())
             return false;
 
         Labirinto lab = (Labirinto) obj;
 
-        if (linha != lab.linha || coluna != lab.coluna || encontrouSaida != lab.encontrouSaida)
+        if (this.linha != lab.linha || this.coluna != lab.coluna || this.encontrouSaida != lab.encontrouSaida)
             return false;
 
-        if ((caminho != null && !caminho.equals(lab.caminho)) || (caminho == null && lab.caminho != null))
+        if ((this.caminho != null && !this.caminho.equals(lab.caminho)) || (this.caminho == null && lab.caminho != null))
             return false;
 
-        if ((possibilidades != null && !possibilidades.equals(lab.possibilidades)) || (possibilidades == null && lab.possibilidades != null))
+        if ((this.possibilidades != null && !this.possibilidades.equals(lab.possibilidades)) || (this.possibilidades == null && lab.possibilidades != null))
             return false;
 
-        if ((fila != null && !fila.equals(lab.fila)) || (fila == null && lab.fila != null))
+        if ((this.fila != null && !this.fila.equals(lab.fila)) || (this.fila == null && lab.fila != null))
             return false;
 
-        if ((atual != null && !atual.equals(lab.atual)) || (atual == null && lab.atual != null))
+        if ((this.atual != null && !this.atual.equals(lab.atual)) || (this.atual == null && lab.atual != null))
             return false;
 
-        for (int i = 0; i < linha; i++) 
-            for (int j = 0; j < coluna; j++) 
-                if (labirinto[i][j] != lab.labirinto[i][j])
+        for (int i = 0; i < this.linha; i++) 
+            for (int j = 0; j < this.coluna; j++) 
+                if (this.labirinto[i][j] != lab.labirinto[i][j])
                     return false;
 
         return true;
@@ -458,15 +465,15 @@ public class Labirinto implements Cloneable
 
         this.linha = modelo.linha;
         this.coluna = modelo.coluna;
-
         this.labirinto = new char[linha][coluna];
+
         for (int i = 0; i < linha; i++) 
             for (int j = 0; j < coluna; j++)
                 this.labirinto[i][j] = modelo.labirinto[i][j];
 
-        this.caminho = new Pilha<>(modelo.caminho);
-        this.possibilidades = new Pilha<>(modelo.possibilidades);
-        this.fila = new Fila<>(modelo.fila);
+        this.caminho = new Pilha<Coordenada>(modelo.caminho);
+        this.possibilidades = new Pilha<Fila<Coordenada>>(modelo.possibilidades);
+        this.fila = new Fila<Coordenada>(modelo.fila);
         this.atual = (modelo.atual != null) ? new Coordenada(modelo.atual) : null;
         this.encontrouSaida = modelo.encontrouSaida;
     }
@@ -474,14 +481,16 @@ public class Labirinto implements Cloneable
     @Override
     public Object clone()
     {
+        Labirinto ret=null;
+
         try 
         {
-            return new Labirinto(this);
+            ret = new Labirinto(this);
         } 
         catch (Exception e) 
-        {
-            return null;
-        }
+        {}
+
+        return ret;
     }
 
 
