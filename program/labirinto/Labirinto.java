@@ -24,7 +24,7 @@ public class Labirinto implements Cloneable
         leitura(arq);
     }
 
-        public void leitura(String arq) throws Exception 
+    public void leitura(String arq) throws Exception 
     {
         try (BufferedReader br = new BufferedReader(new FileReader("testes/" + arq))) 
         {
@@ -68,10 +68,8 @@ public class Labirinto implements Cloneable
         }
     }
 
-
     private void verificarIntegridadeBasica() throws Exception 
     {
-        
         int entrada = 0, saida = 0;
 
         for (int i = 0; i < this.linha; i++)
@@ -101,7 +99,7 @@ public class Labirinto implements Cloneable
         {
             for (int j = 0; j < this.coluna; j++) 
             {
-                if (this.labirinto[i][j] == 'E' || this.labirinto[i][j] == 'S') 
+                if (this.labirinto[i][j] == 'E') 
                 {
                     boolean bloqueado = true;
                     int[][] direcoes = { {0,1}, {1,0}, {0,-1}, {-1,0} };
@@ -116,7 +114,37 @@ public class Labirinto implements Cloneable
                     }
 
                     if (bloqueado)
-                        throw new Exception("Entrada ou saída sem caminho livre ao redor.");
+                        throw new Exception("Entrada 'E' sem caminho livre ao redor.");
+                }
+            }
+        }
+
+        // Verifica se a saída tem pelo menos um caminho livre ao redor. ESTÁ DANDO ERRO
+        for (int i = 0; i < this.linha; i++) 
+        {
+            for (int j = 0; j < this.coluna; j++) 
+            {
+                if (this.labirinto[i][j] == 'S') 
+                {
+                    boolean bloqueado = true;
+                    int[][] direcoes = { {0,1}, {1,0}, {0,-1}, {-1,0} };
+
+                    for (int[] d : direcoes) 
+                    {
+                        int ni = i + d[0], nj = j + d[1];
+
+                        if (ni >= 0 && ni < this.linha && nj >= 0 && nj < this.coluna)
+                        {
+                            char c = this.labirinto[ni][nj];
+                            if (c == ' ' || c == 'E') {
+                                bloqueado = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (bloqueado)
+                        throw new Exception("A saída 'S' está inacessível (totalmente cercada).");
                 }
             }
         }
@@ -199,12 +227,10 @@ public class Labirinto implements Cloneable
         }
 
         this.encontrouSaida = false;
+        this.caminho = new Pilha<Coordenada>(this.labirinto.length * this.labirinto[0].length);
+        this.possibilidades = new Pilha<Fila<Coordenada>>(this.labirinto.length * this.labirinto[0].length);
 
-        this.caminho = new Pilha<Coordenada> (this.labirinto.length*this.labirinto[0].length);
-        this.possibilidades = new Pilha<Fila<Coordenada>> (this.labirinto.length*this.labirinto[0].length);
-        this.fila = new Fila<Coordenada>(3);
-
-        if (resolverCaminho(this.atual.getLinha(), this.atual.getColuna())) 
+        if (resolverCaminho(atual.getLinha(), atual.getColuna())) 
         {
             System.out.println("\nLabirinto resolvido!\n");
             escreverLabirinto(arquivoSaida);
@@ -220,56 +246,88 @@ public class Labirinto implements Cloneable
 
     private boolean resolverCaminho(int linhaAtual, int colunaAtual) throws Exception 
     {
-        // Verifica se está fora dos limites do labirinto.
+        // Posição atual
+        this.atual = new Coordenada(linhaAtual, colunaAtual);
+    
+        // Verifica se a posição está fora dos limites do labirinto
         if (linhaAtual < 0 || linhaAtual >= this.linha || colunaAtual < 0 || colunaAtual >= this.coluna)
             return false;
-
+    
+        // Verifica se a célula é uma parede, já visitada ou caminho morto
         char celula = this.labirinto[linhaAtual][colunaAtual];
-
-        // Se for parede ou já visitada, retorna falso.
-        if (celula == '#' || celula == '*')
+        if (celula == '#' || celula == '*' || celula == 'x') 
             return false;
-
-        // Adiciona a coordenada atual no caminho.
-        this.caminho.guardeUmItem(new Coordenada(linhaAtual, colunaAtual));
-
-        // Se encontrar a saída, retorna verdadeiro.
-        if (celula == 'S') return true;
-
-        // Marca a célula como visitada.
-        if (celula != 'E') this.labirinto[linhaAtual][colunaAtual] = '*';
-
-        // Cria uma fila para explorar as direções possíveis.
-        Fila<Coordenada> novasPosicoes = new Fila<Coordenada>(3);
-
-        // Adiciona as posições vizinhas válidas à fila.
-        if (linhaAtual + 1 < this.linha && this.labirinto[linhaAtual + 1][colunaAtual] != '#') novasPosicoes.guardeUmItem(new Coordenada(linhaAtual + 1, colunaAtual)); // Baixo
-        if (linhaAtual - 1 >= 0 && this.labirinto[linhaAtual - 1][colunaAtual] != '#') novasPosicoes.guardeUmItem(new Coordenada(linhaAtual - 1, colunaAtual)); // Cima
-        if (colunaAtual + 1 < coluna && this.labirinto[linhaAtual][colunaAtual + 1] != '#') novasPosicoes.guardeUmItem(new Coordenada(linhaAtual, colunaAtual + 1)); // Direita
-        if (colunaAtual - 1 >= 0 && this.labirinto[linhaAtual][colunaAtual - 1] != '#') novasPosicoes.guardeUmItem(new Coordenada(linhaAtual, colunaAtual - 1)); // Esquerda
-
-        // Se há novas posições, armazena na pilha de possibilidades.
-        if (!novasPosicoes.isVazia()) this.possibilidades.guardeUmItem(novasPosicoes);
-
-        // Tenta explorar as 4 direções.
-        if (resolverCaminho(linhaAtual + 1, colunaAtual) ||
-            resolverCaminho(linhaAtual - 1, colunaAtual) ||
-            resolverCaminho(linhaAtual, colunaAtual + 1) ||
-            resolverCaminho(linhaAtual, colunaAtual - 1)) 
-        {
+    
+        // Adiciona a coordenada atual na pilha do caminho
+        this.caminho.guardeUmItem(this.atual);
+    
+        // Se encontrou a saída, encerra a busca com sucesso
+        if (celula == 'S') 
             return true;
+    
+        // Marca a célula como visitada (exceto se for a entrada)
+        if (celula != 'E') 
+            this.labirinto[linhaAtual][colunaAtual] = '*';
+    
+        // Cria uma fila para armazenar as coordenadas adjacentes válidas
+        this.fila = new Fila<Coordenada>(3);
+    
+        // Direções possíveis: baixo, cima, direita, esquerda
+        int[][] direcoes = { {1,0}, {-1,0}, {0,1}, {0,-1} };
+    
+        // Verifica cada direção possível
+        for (int[] dir : direcoes) 
+        {
+            int ni = linhaAtual + dir[0];
+            int nj = colunaAtual + dir[1];
+    
+            // Se estiver dentro dos limites do labirinto
+            if (ni >= 0 && ni < this.linha && nj >= 0 && nj < this.coluna) 
+            {
+                char proximaCelula = this.labirinto[ni][nj];
+    
+                // Adiciona à fila apenas se for espaço livre ou saída
+                if (proximaCelula == ' ' || proximaCelula == 'S') 
+                    this.fila.guardeUmItem(new Coordenada(ni, nj));
+            }
         }
-
-        // Se não encontrar caminho, desfaz a marcação e remove a posição do caminho.
-        if (this.labirinto[linhaAtual][colunaAtual] != 'E')
-            this.labirinto[linhaAtual][colunaAtual] = ' ';
-
-        this.caminho.removaUmItem();
-
+    
+        // Guarda essa fila de possibilidades na pilha
+        this.possibilidades.guardeUmItem(this.fila);
+    
+        // Enquanto houver caminhos possíveis para explorar
+        while (!this.possibilidades.isVazia()) 
+        {
+            // Recupera a fila do topo da pilha (últimas possibilidades)
+            Fila<Coordenada> filaTopo = this.possibilidades.recupereUmItem();
+    
+            // Tenta cada coordenada da fila
+            while (!filaTopo.isVazia()) 
+            {
+                Coordenada proxima = filaTopo.recupereUmItem();
+                filaTopo.removaUmItem();
+    
+                // Chama recursivamente a função para a próxima coordenada
+                if (resolverCaminho(proxima.getLinha(), proxima.getColuna()))
+                    return true; // Se chegar à saída, retorna sucesso
+            }
+    
+            // Se a fila de possibilidades se esgotou, remove-a da pilha
+            this.possibilidades.removaUmItem();
+    
+            // Remove a última coordenada do caminho (backtracking)
+            Coordenada ultima = this.caminho.recupereUmItem();
+            this.caminho.removaUmItem();
+    
+            // Marca como caminho morto (exceto a entrada)
+            if (this.labirinto[ultima.getLinha()][ultima.getColuna()] != 'E')
+                this.labirinto[ultima.getLinha()][ultima.getColuna()] = 'x';
+        }
+    
+        // Se nenhuma possibilidade levar à saída, retorna false
         return false;
     }
-
-
+    
     private void escreverLabirinto(String nomeArquivo) 
     {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("testes/" + nomeArquivo))) 
@@ -301,30 +359,21 @@ public class Labirinto implements Cloneable
 
     private void imprimirCaminho() throws Exception 
     {
-        // Cria duas pilhas para armazenar o caminho de forma invertida e um backup.
-        Pilha<Coordenada> inverso = new Pilha<Coordenada>(this.labirinto.length*this.labirinto[0].length);
-        Pilha<Coordenada> backup = new Pilha<Coordenada>(this.labirinto.length*this.labirinto[0].length);
+        // Cria uma pilha para armazenar o caminho invertido
+        Pilha<Coordenada> inverso = new Pilha<Coordenada>(this.labirinto.length * this.labirinto[0].length);
 
-        // Transfere as coordenadas do caminho para a pilha inversa e para o backup.
+        // Transfere as coordenadas do caminho para a pilha inversa
         while (!this.caminho.isVazia()) 
         {
             Coordenada c = this.caminho.recupereUmItem();
             inverso.guardeUmItem(c);
-            backup.guardeUmItem(c);
             this.caminho.removaUmItem();
         }
 
-        // Restaura o caminho original de volta para a pilha de caminho.
-        while (!backup.isVazia()) 
-        {
-            this.caminho.guardeUmItem(backup.recupereUmItem());
-            backup.removaUmItem();
-        }
-
-        // Imprime o caminho da entrada até a saída.
+        // Imprime o caminho da entrada até a saída
         System.out.println("Caminho da entrada até a saída:");
 
-        // Imprime o caminho invertido.
+        // Imprime o caminho invertido
         while (!inverso.isVazia()) 
         {
             Coordenada c = inverso.recupereUmItem();
@@ -332,7 +381,7 @@ public class Labirinto implements Cloneable
             inverso.removaUmItem();
         }
 
-        // Finaliza a impressão com uma quebra de linha.
+        // Finaliza a impressão com uma quebra de linha
         System.out.println();
     }
 
