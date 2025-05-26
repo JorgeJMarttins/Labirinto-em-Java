@@ -54,8 +54,8 @@ public class Labirinto implements Cloneable
                 }
             }
 
-            this.caminho = new Pilha<>(this.linha * this.coluna);
-            this.possibilidades = new Pilha<>(this.linha * this.coluna);
+            this.caminho = new Pilha<Coordenada>(this.linha * this.coluna);
+            this.possibilidades = new Pilha<Fila<Coordenada>>(this.linha * this.coluna);
 
             verificarIntegridadeBasica();
             verificarEstruturaDeLabirinto();
